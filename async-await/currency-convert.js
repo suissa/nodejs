@@ -24,18 +24,11 @@ const convertCurrency = (from, to, amount) => {
 }
 
 
-convertCurrency('CAD', 'USD', 100).then((status) => {
-  console.log(status)
-})
-
-// getExchangeRate('USD', 'EUR').then((rate)=> {
-  //   console.log(rate)
-  // })
-  
-// getCountries('USD').then((countries)=> {
-  //   console.log(countries)
+// convertCurrency('CAD', 'USD', 100).then((status) => {
+//   console.log(status)
 // })
 
+// ASYNC AWAIT VERSION //
 
 const getExchangeRateAlt = async (from, to) => {
   const response = await axios.get(`http://api.fixer.io/latest?base=${from}`)
@@ -48,14 +41,14 @@ const getCountriesAlt = async (currencyCode) => {
   return response.data.map((country)=> country.name)
 }
 
+
 const convertCurrencyAlt = async (from, to, amount) => {
   const countries = await getCountriesAlt(to)
   const rate = await getExchangeRateAlt(from, to)
   const exchangedAmount = amount * rate
-  console.log('------------------- ASYNC AWAIT  -------------------')
   return `${amount} ${from} is worth ${exchangedAmount} ${to}. ${to} can be used in the following countries: ${countries.join(', ')}`
 }
 
-convertCurrencyAlt('CAD', 'USD', 100).then((status) => {
+convertCurrencyAlt('BRL', 'USD', 1).then((status) => {
   console.log(status)
 })
