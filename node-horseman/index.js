@@ -1,18 +1,18 @@
-var Horseman = require('node-horseman')
-var horseman = new Horseman()
-
+const Horseman = require('node-horseman')
+const horseman = new Horseman()
+const fs = require('fs')
 
 var finalData = []
 
 function getdata() {
   return horseman.evaluate(function(){
-    var descNode = document.querySelectorAll('.descr a')
-    var desc = Array.prototype.map.call(descNode, function (t) { return t.textContent })
+    const descNode = document.querySelectorAll('.descr a')
+    const desc = Array.prototype.map.call(descNode, function (t) { return t.textContent })
 
-    var valueNode = document.querySelectorAll('.price a')
-    var value = Array.prototype.map.call(valueNode, function (t) { return t.textContent })
+    const valueNode = document.querySelectorAll('.price a')
+    const value = Array.prototype.map.call(valueNode, function (t) { return t.textContent })
     
-    var finalData = []
+    const finalData = []
 
     for (var i=0 ; i < desc.length; i ++) {
       var item = {}
@@ -20,8 +20,6 @@ function getdata() {
       item['value'] = value[i]
       finalData.push(item)
     }
-
-    console.log(JSON.stringify(finalData))
 
     return finalData
 
@@ -35,7 +33,9 @@ function hasNextPage(){
 function scrape(){
   return new Promise( function(resolve, reject){
     return getdata()
-    .then(function(){
+    .then(function(newData){
+      finalData = finalData.concat(newData)
+      console.log(`Got ${finalData.length} items from ${finalData.length/12} pages`)
       return hasNextPage()
       .then(function(hasNext){
         if (hasNext){
@@ -47,9 +47,6 @@ function scrape(){
       })
     })
     .then(resolve)
-    .catch(function(err){
-      console.log(err)
-    })
   })
 }
 
@@ -60,7 +57,10 @@ horseman
   })
   .open('http://www.angeloni.com.br/super/index')
   .then(scrape)
-  .finally(function(finalData) {
-    console.log(finalData)
+  .finally(function() {
+    fs.writeFile('angeloniData.json', JSON.stringify(finalData), (err) => {
+      if (err) throw err
+      console.log('The file has been saved!')
+      horseman.close()
+    })
   })
-  .close()
